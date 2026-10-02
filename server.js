@@ -12,7 +12,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+// Servir arquivos estáticos da pasta public com index.html como padrão
+app.use(express.static(path.join(__dirname, "public"), { index: "index.html" }));
 
 let db;
 
@@ -159,6 +160,14 @@ app.delete("/api/users/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// Fallback: Qualquer rota não encontrada redireciona/carrega a página inicial index.html
+app.get("*", (req, res) => {
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ success: false, error: "Rota da API não encontrada." });
+  }
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 function openBrowser(url) {
