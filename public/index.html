@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Cadastro de Usuários - SQLite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-badge">Sistema Fullstack</div>
+          <h1>Gerenciador SQLite</h1>
+        </div>
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">SQLite Conectado</span>
+      </div>
+    </header>
+
+    <!-- Metrics Bar -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon users-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Total Cadastrados</span>
+          <span class="metric-value" id="totalUsersCount">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon recent-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Último Cadastro</span>
+          <span class="metric-value-small" id="latestUserLabel">—</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon db-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m8 17 4 4 4-4"></path>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Banco de Dados</span>
+          <span class="metric-value-small font-mono">./banco.db</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <main class="dashboard-layout">
+      <!-- Left Column: Registration Form -->
+      <section class="form-section card">
+        <div class="card-header">
+          <div class="header-tag">Formulário</div>
+          <h2>Novo Cadastro</h2>
+          <p class="section-desc">Preencha os campos abaixo para salvar o usuário diretamente no SQLite.</p>
+        </div>
+
+        <form id="userForm" class="user-form" novalidate>
+          <div class="form-group">
+            <label for="nome">Nome <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <input 
+                type="text" 
+                id="nome" 
+                name="nome" 
+                placeholder="Ex: Robson" 
+                autocomplete="off"
+                required
+              >
+            </div>
+            <span class="input-error" id="nomeError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="sobrenome">Sobrenome <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+              <input 
+                type="text" 
+                id="sobrenome" 
+                name="sobrenome" 
+                placeholder="Ex: Silva" 
+                autocomplete="off"
+                required
+              >
+            </div>
+            <span class="input-error" id="sobrenomeError"></span>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn btn-primary">
+            <span class="btn-text">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Cadastrar no Banco
+            </span>
+            <span class="btn-loader hidden">
+              <div class="spinner"></div> Gravando...
+            </span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Right Column: User List & Filters -->
+      <section class="list-section card">
+        <div class="card-header list-header">
+          <div>
+            <div class="header-tag">Tabela SQLite</div>
+            <h2>Usuários Registrados</h2>
+          </div>
+          <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Filtrar por nome ou ID..." autocomplete="off">
+            <button id="btnClearSearch" class="btn-clear hidden" title="Limpar busca" type="button">&times;</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <div id="loadingState" class="state-message">
+            <div class="spinner large"></div>
+            <p>Carregando registros do banco...</p>
+          </div>
+
+          <div id="emptyState" class="state-message hidden">
+            <div class="empty-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3>Nenhum usuário cadastrado ainda</h3>
+            <p>Use o formulário ao lado para adicionar o primeiro usuário.</p>
+          </div>
+
+          <div id="noResultsState" class="state-message hidden">
+            <h3>Nenhum resultado encontrado</h3>
+            <p>Tente buscar por outro termo.</p>
+          </div>
+
+          <div id="userList" class="user-cards-grid">
+            <!-- Dynamic User Cards inserted by JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-box modal-box-form">
+      <div class="modal-header-row">
+        <div class="modal-icon-edit">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </div>
+        <h3 id="editModalTitle">Editar Usuário</h3>
+      </div>
+      <form id="editUserForm" class="user-form" novalidate>
+        <input type="hidden" id="editUserId">
+        <div class="form-group">
+          <label for="editNome">Nome <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="editNome" name="nome" placeholder="Nome" required autocomplete="off">
+          </div>
+          <span class="input-error" id="editNomeError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="editSobrenome">Sobrenome <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="editSobrenome" name="sobrenome" placeholder="Sobrenome" required autocomplete="off">
+          </div>
+          <span class="input-error" id="editSobrenomeError"></span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" id="btnSaveEdit" class="btn btn-primary">
+            <span class="btn-text">Salvar Alterações</span>
+            <span class="btn-loader hidden"><div class="spinner"></div> Salvando...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-icon-alert">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <h3>Excluir Usuário</h3>
+      <p id="confirmModalText">Tem certeza que deseja remover este registro do SQLite?</p>
+      <div class="modal-actions">
+        <button id="btnCancelDelete" class="btn btn-secondary" type="button">Cancelar</button>
+        <button id="btnConfirmDelete" class="btn btn-danger" type="button">Sim, Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
