@@ -1,21 +1,30 @@
 {
-  "name": "sqlite",
+  "name": "sqlite-vite-manager",
   "version": "1.0.0",
-  "description": "",
+  "description": "Gerenciador SQLite com Vite e Express",
   "main": "server.js",
-  "scripts": {
-    "build": "npm rebuild sqlite3 --build-from-source",
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
   "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n \"server,client\" -c \"blue,green\" \"node server.js\" \"vite\"",
+    "dev:client": "vite",
+    "dev:server": "node --watch server.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "sqlite",
+    "vite",
+    "express",
+    "fullstack"
+  ],
   "dependencies": {
     "express": "^5.2.1",
-    "sqlite": "^5.1.1"
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
   },
-  "allowScripts": {
-    "sqlite3@6.0.1": true
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "vite": "^8.3.2"
   }
 }

@@ -1,8 +1,8 @@
 import express from "express";
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
+import { DatabaseSync } from "node:sqlite";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 import { exec } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,19 +12,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-// Servir arquivos estáticos da pasta public com index.html como padrão
-app.use(express.static(path.join(__dirname, "public"), { index: "index.html" }));
 
+// Servir frontend compilado (dist) ou pasta public
+const distPath = path.join(__dirname, "dist");
+const publicPath = path.join(__dirname, "public");
+
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+} else if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath));
+}
+
+const dbPath = path.join(__dirname, "banco.db");
 let db;
 
-async function initDb() {
-  db = await open({
-    filename: path.join(__dirname, "banco.db"),
-    driver: sqlite3.Database,
-  });
+function initDb() {
+  db = new DatabaseSync(dbPath);
 
   // Cria a tabela caso não exista
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
@@ -34,13 +40,13 @@ async function initDb() {
   `);
 
   // Verifica se a coluna created_at existe (para bancos criados anteriormente)
-  const columns = await db.all("PRAGMA table_info(users)");
+  const columns = db.prepare("PRAGMA table_info(users)").all();
   const hasCreatedAt = columns.some((col) => col.name === "created_at");
 
   if (!hasCreatedAt) {
     try {
-      await db.exec("ALTER TABLE users ADD COLUMN created_at DATETIME;");
-      await db.exec("UPDATE users SET created_at = datetime('now', 'localtime') WHERE created_at IS NULL;");
+      db.exec("ALTER TABLE users ADD COLUMN created_at DATETIME;");
+      db.exec("UPDATE users SET created_at = datetime('now', 'localtime') WHERE created_at IS NULL;");
     } catch (err) {
       console.warn("Aviso ao adicionar coluna created_at:", err.message);
     }
@@ -48,23 +54,18 @@ async function initDb() {
 
   // Preenche created_at nulos se houver registros antigos
   try {
-    await db.exec("UPDATE users SET created_at = datetime('now', 'localtime') WHERE created_at IS NULL;");
+    db.exec("UPDATE users SET created_at = datetime('now', 'localtime') WHERE created_at IS NULL;");
   } catch (err) {
-    // Ignora se não for necessário
+    // Ignora
   }
 
-  console.log(" Banco SQLite inicializado com sucesso.");
+  console.log("📦 Banco SQLite (nativo) inicializado com sucesso.");
 }
 
-// Rota principal
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 // GET all users
-app.get("/api/users", async (req, res) => {
+app.get("/api/users", (req, res) => {
   try {
-    const users = await db.all("SELECT * FROM users ORDER BY id DESC");
+    const users = db.prepare("SELECT * FROM users ORDER BY id DESC").all();
     res.json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -72,10 +73,10 @@ app.get("/api/users", async (req, res) => {
 });
 
 // GET single user
-app.get("/api/users/:id", async (req, res) => {
+app.get("/api/users/:id", (req, res) => {
   try {
     const { id } = req.params;
-    const user = await db.get("SELECT * FROM users WHERE id = ?", [id]);
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
     if (!user) {
       return res.status(404).json({ success: false, error: "Usuário não encontrado." });
     }
@@ -86,7 +87,7 @@ app.get("/api/users/:id", async (req, res) => {
 });
 
 // POST new user
-app.post("/api/users", async (req, res) => {
+app.post("/api/users", (req, res) => {
   try {
     const { nome, sobrenome } = req.body || {};
     if (!nome || !sobrenome || !nome.trim() || !sobrenome.trim()) {
@@ -96,12 +97,13 @@ app.post("/api/users", async (req, res) => {
       });
     }
 
-    const result = await db.run(
-      "INSERT INTO users (nome, sobrenome, created_at) VALUES (?, ?, datetime('now', 'localtime'))",
-      [nome.trim(), sobrenome.trim()]
+    const stmt = db.prepare(
+      "INSERT INTO users (nome, sobrenome, created_at) VALUES (?, ?, datetime('now', 'localtime'))"
     );
+    const result = stmt.run(nome.trim(), sobrenome.trim());
+    const newId = Number(result.lastInsertRowid);
 
-    const newUser = await db.get("SELECT * FROM users WHERE id = ?", [result.lastID]);
+    const newUser = db.prepare("SELECT * FROM users WHERE id = ?").get(newId);
     res.status(201).json({
       success: true,
       data: newUser,
@@ -113,7 +115,7 @@ app.post("/api/users", async (req, res) => {
 });
 
 // PUT update user
-app.put("/api/users/:id", async (req, res) => {
+app.put("/api/users/:id", (req, res) => {
   try {
     const { id } = req.params;
     const { nome, sobrenome } = req.body || {};
@@ -125,17 +127,15 @@ app.put("/api/users/:id", async (req, res) => {
       });
     }
 
-    const existingUser = await db.get("SELECT * FROM users WHERE id = ?", [id]);
+    const existingUser = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
     if (!existingUser) {
       return res.status(404).json({ success: false, error: "Usuário não encontrado." });
     }
 
-    await db.run(
-      "UPDATE users SET nome = ?, sobrenome = ? WHERE id = ?",
-      [nome.trim(), sobrenome.trim(), id]
-    );
+    const stmt = db.prepare("UPDATE users SET nome = ?, sobrenome = ? WHERE id = ?");
+    stmt.run(nome.trim(), sobrenome.trim(), id);
 
-    const updatedUser = await db.get("SELECT * FROM users WHERE id = ?", [id]);
+    const updatedUser = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
     res.json({
       success: true,
       data: updatedUser,
@@ -147,27 +147,36 @@ app.put("/api/users/:id", async (req, res) => {
 });
 
 // DELETE user
-app.delete("/api/users/:id", async (req, res) => {
+app.delete("/api/users/:id", (req, res) => {
   try {
     const { id } = req.params;
-    const user = await db.get("SELECT * FROM users WHERE id = ?", [id]);
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
     if (!user) {
       return res.status(404).json({ success: false, error: "Usuário não encontrado." });
     }
 
-    await db.run("DELETE FROM users WHERE id = ?", [id]);
+    db.prepare("DELETE FROM users WHERE id = ?").run(id);
     res.json({ success: true, message: `Usuário ${user.nome} removido com sucesso!` });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Fallback: Qualquer rota não encontrada redireciona/carrega a página inicial index.html
-app.get("*", (req, res) => {
+// Fallback para SPA / index.html (compatível com Express 5)
+app.use((req, res) => {
   if (req.path.startsWith("/api")) {
     return res.status(404).json({ success: false, error: "Rota da API não encontrada." });
   }
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  const distIndex = path.join(distPath, "index.html");
+  const publicIndex = path.join(publicPath, "index.html");
+
+  if (fs.existsSync(distIndex)) {
+    res.sendFile(distIndex);
+  } else if (fs.existsSync(publicIndex)) {
+    res.sendFile(publicIndex);
+  } else {
+    res.status(404).send("Vite em execução no modo Dev. Acesse http://localhost:5173");
+  }
 });
 
 function openBrowser(url) {
@@ -180,17 +189,16 @@ function openBrowser(url) {
   exec(startCmd, () => {});
 }
 
-async function start() {
-  await initDb();
+function start() {
+  initDb();
   app.listen(PORT, () => {
     const url = `http://localhost:${PORT}`;
-    console.log(`🚀 Servidor rodando em: ${url}`);
+    console.log(`🚀 Servidor API rodando em: ${url}`);
     
-    if (process.env.OPEN_BROWSER !== "false") {
+    if (process.env.OPEN_BROWSER === "true") {
       openBrowser(url);
     }
   });
 }
 
 start();
-
