@@ -25,6 +25,9 @@ const latestUserLabel = document.getElementById('latestUserLabel');
 const btnRefresh = document.getElementById('btnRefresh');
 const btnExportJson = document.getElementById('btnExportJson');
 const btnExportCsv = document.getElementById('btnExportCsv');
+const btnHeaderDownloadDb = document.getElementById('btnHeaderDownloadDb');
+const dbMetricCard = document.getElementById('dbMetricCard');
+const btnDownloadDb = document.getElementById('btnDownloadDb');
 
 // Edit Modal
 const editModal = document.getElementById('editModal');
@@ -100,6 +103,23 @@ function setupEventListeners() {
     btnExportCsv.addEventListener('click', exportToCsv);
   }
 
+  // Database File Download Shortcuts
+  if (btnHeaderDownloadDb) {
+    btnHeaderDownloadDb.addEventListener('click', handleDownloadDb);
+  }
+  if (dbMetricCard) {
+    dbMetricCard.addEventListener('click', handleDownloadDb);
+    dbMetricCard.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleDownloadDb();
+      }
+    });
+  }
+  if (btnDownloadDb) {
+    btnDownloadDb.addEventListener('click', handleDownloadDb);
+  }
+
   // Edit Modal
   if (editUserForm) {
     editUserForm.addEventListener('submit', handleSaveEdit);
@@ -131,6 +151,11 @@ function setupEventListeners() {
     if (e.key === 'Escape') {
       closeEditModal();
       closeDeleteModal();
+    }
+    // Alt+D or Ctrl+Shift+D to download banco.db
+    if ((e.altKey && (e.key === 'd' || e.key === 'D')) || (e.ctrlKey && e.shiftKey && (e.key === 'd' || e.key === 'D'))) {
+      e.preventDefault();
+      handleDownloadDb();
     }
     // Press '/' to search if not already in input
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
@@ -444,6 +469,16 @@ function exportToCsv() {
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   downloadBlob(blob, `sqlite-usuarios-${Date.now()}.csv`);
   showToast('Exportado para CSV!', 'success');
+}
+
+function handleDownloadDb() {
+  const link = document.createElement('a');
+  link.href = '/api/download-db';
+  link.setAttribute('download', 'banco.db');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Download do banco.db iniciado!', 'success');
 }
 
 function downloadBlob(blob, filename) {

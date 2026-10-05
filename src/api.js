@@ -56,3 +56,7 @@ export async function deleteUser(id) {
   }
   return data;
 }
+
+export function getDbDownloadUrl() {
+  return '/api/download-db';
+}

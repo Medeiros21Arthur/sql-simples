@@ -37,6 +37,15 @@
         </div>
       </div>
       <div class="header-actions">
+        <button id="btnHeaderDownloadDb" class="btn btn-secondary btn-sm btn-download-shortcut" title="Baixar arquivo SQLite (banco.db) [Atalho: Alt+D]" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Baixar banco.db</span>
+          <kbd class="kbd-shortcut">Alt+D</kbd>
+        </button>
         <div class="status-indicator">
           <span class="status-dot"></span>
           <span class="status-text">SQLite Ativo</span>
@@ -73,16 +82,26 @@
         </div>
       </div>
 
-      <div class="metric-card">
+      <div class="metric-card metric-card-interactive" id="dbMetricCard" role="button" tabindex="0" title="Clique para baixar o arquivo banco.db (Alt+D)">
         <div class="metric-icon db-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
-            <path d="M12 12v9"></path>
-            <path d="m8 17 4 4 4-4"></path>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
           </svg>
         </div>
         <div class="metric-info">
-          <span class="metric-label">Banco de Dados</span>
+          <div class="metric-title-row">
+            <span class="metric-label">Banco de Dados</span>
+            <span class="download-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Baixar .db
+            </span>
+          </div>
           <span class="metric-value-small font-mono">./banco.db</span>
         </div>
       </div>
@@ -175,6 +194,15 @@
                 <path d="M1 20v-6h6"></path>
                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
               </svg>
+            </button>
+
+            <button id="btnDownloadDb" class="btn btn-secondary btn-sm btn-db-download" title="Baixar arquivo SQLite (banco.db)" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              .DB
             </button>
 
             <button id="btnExportCsv" class="btn btn-secondary btn-sm" title="Exportar CSV" type="button">

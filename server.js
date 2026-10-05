@@ -62,6 +62,22 @@ function initDb() {
   console.log("📦 Banco SQLite (nativo) inicializado com sucesso.");
 }
 
+// GET download banco.db
+app.get("/api/download-db", (req, res) => {
+  try {
+    if (!fs.existsSync(dbPath)) {
+      return res.status(404).json({ success: false, error: "Arquivo de banco de dados (banco.db) não encontrado." });
+    }
+    res.download(dbPath, "banco.db", (err) => {
+      if (err && !res.headersSent) {
+        res.status(500).json({ success: false, error: "Erro ao realizar o download do banco de dados." });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET all users
 app.get("/api/users", (req, res) => {
   try {

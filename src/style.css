@@ -223,6 +223,95 @@ body {
   background: var(--bg-card-hover);
 }
 
+.metric-card-interactive {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-interactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0);
+  transition: var(--transition);
+  pointer-events: none;
+}
+
+.metric-card-interactive:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(26, 36, 56, 0.95);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 25px rgba(168, 85, 247, 0.25);
+}
+
+.metric-card-interactive:hover .download-badge {
+  background: rgba(168, 85, 247, 0.4);
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.8);
+  transform: translateY(-1px);
+}
+
+.metric-card-interactive:active {
+  transform: translateY(0);
+}
+
+.metric-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.download-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #d8b4fe;
+  transition: var(--transition);
+}
+
+.btn-download-shortcut {
+  gap: 0.55rem;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.btn-download-shortcut:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  background: rgba(168, 85, 247, 0.15);
+  color: #fff;
+}
+
+.btn-db-download {
+  color: #d8b4fe;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.btn-db-download:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.6);
+  color: #fff;
+}
+
+.kbd-shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
 .metric-icon {
   width: 46px;
   height: 46px;
@@ -241,6 +330,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: 100%;
 }
 
 .metric-label {
